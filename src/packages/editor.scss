@@ -1,0 +1,43 @@
+.editor{
+    width: 100%;
+    height: 100%;
+    &_left,&_right{
+        position: absolute;
+        width: 270px;
+        background: yellow;
+        top: 0;
+        bottom: 0;
+    }
+    &_left{
+        left: 0;
+    }
+    &_right{
+        right: 0;
+    }
+    &_top{
+        position: absolute;
+        right: 280px;
+        left: 280px;
+        height:80px;
+        background: blue;
+    }
+    &_container {
+        padding: 80px 270px 0;
+        height: 100%;
+        box-sizing: border-box;
+        border: 10px solid white;
+        .editor_container_canvas {
+            overflow: auto;
+            height: 100%;
+            .editor_container_canvas_content {
+                margin: 20px auto;
+                background: yellowgreen;
+                position: relative;
+            }
+        }
+       
+    }
+}
+.eidt-block {
+    position: absolute;
+}
