@@ -11,10 +11,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { provide, ref } from 'vue';
 import data from './data.json';
 import editor from './packages/editor';
+import {registerConfig as config} from './utils/editConfig';   // 物料组件 以及 映射对象
 const state = ref(data);
+provide('config',config);
 
 </script>
 
