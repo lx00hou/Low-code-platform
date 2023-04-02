@@ -27,6 +27,5 @@ provide('config',config);
     left: 20px;
     right: 20px;
     bottom: 20px;
-    border: 1px solid red;
 }
 </style>
