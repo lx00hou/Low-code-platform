@@ -1,6 +1,7 @@
 import { defineComponent , computed, inject , ref} from "vue";
 import { componentInerface } from '../utils/editConfig';
-import { useMneuDragger }  from '../hooks/menuDrag';
+import { useMneuDragger }  from '../hooks/useMenuDrag';
+import { useFocus } from '../hooks/useFocus';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
@@ -12,7 +13,7 @@ export default defineComponent({
     },
     // emit:['update:modelValue'],
     setup(props,ctx){
-        const data:any = computed({
+        const data = computed({
             get(){
                 // 获取 计算属性的值 需要 .value 
                 return props.modelValue
@@ -22,23 +23,23 @@ export default defineComponent({
             }
         })
 
-        const config:componentInerface = inject('config') as componentInerface;
+        const config = inject('config');
         const containerStyle= computed(() => ({   // 画布大小 放入计算属性
-            width:data.value!.container.width+'px',
-            height:data.value!.container.height+'px'
+            width:data.value.container.width+'px',
+            height:data.value.container.height+'px'
         }))  
         /**
          * h5 拖拽
          */
-        const containRef:any = ref(null);   // 获取整个画布元素
+        const containRef = ref(null);   // 获取整个画布元素
         // 1 左侧物料区 菜单拖拽功能
         let {dragStart,dragend} = useMneuDragger(containRef,data);  
-        // 2 获取焦点
-        let blockMousedown = (e,block)=> {
-            console.log('e',e);
-            console.log('block',block);
-        }
+        // 2 画布组件 鼠标按下
+        let { blockMousedown ,clearBlockFocus,focusData } = useFocus(data,(e) => {
+            console.log('focusData',focusData.value.focus);
+        })
         // 3 画布元素 实现拖拽
+
         return ()=> <div class="editor">
             <div class='editor_left'>
                 {/* 根据 映射列表 渲染对应内容 */}
@@ -62,13 +63,15 @@ export default defineComponent({
                     {/* 负责产生滚动条 */}
                     <div class="editor_container_canvas_content" 
                         style={containerStyle.value}
-                        ref={containRef}    
+                        ref={containRef} 
+                        onMousedown={clearBlockFocus}   // 清除所有被选中的 组件样式
                     >
                         {
-                            (data.value!.blocks.map(block => (
+                            (data.value.blocks.map(block => (
                                 <EditorBlock 
-                                block={block}
-                                // onMousedown={(e) =>blockMousedown(e,block)}  
+                                    class={block.focus ? 'editor_block_focus' : ''}
+                                    block={block}
+                                    onMousedown={(e) =>blockMousedown(e,block)}  
                                 />
                             )))
                         }

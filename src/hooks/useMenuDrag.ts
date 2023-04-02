@@ -1,5 +1,7 @@
+import { Ref } from 'vue';
+import { dataInterface } from '../utils/dataJsonCheck';
 // 左侧组件 拖拽到 画布
-export function useMneuDragger(containRef,data){
+export function useMneuDragger(containRef:Ref<HTMLDivElement>,data:Ref<dataInterface>){
     let curComponent:any = null;   // 当前拖拽的物料组件
     const dragStart = (e,component) => {
         // 拖拽开始 绑定事件
