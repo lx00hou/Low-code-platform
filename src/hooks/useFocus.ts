@@ -5,6 +5,7 @@ export function useFocus(data:Ref<dataInterface>,callback:Function){
     const focusData = computed(() => {
         let focus:blockInterface[] = [];
         let unfocus:blockInterface[] = [];
+        // push() 属于浅拷贝 数据(focus[])变化时,原数据(data)也会发生变化;
         data.value.blocks.forEach((block:blockInterface) =>  (block.focus ? focus : unfocus).push(block) )
         return {focus,unfocus}
     })

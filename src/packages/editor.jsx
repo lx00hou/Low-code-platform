@@ -2,6 +2,7 @@ import { defineComponent , computed, inject , ref} from "vue";
 import { componentInerface } from '../utils/editConfig';
 import { useMneuDragger }  from '../hooks/useMenuDrag';
 import { useFocus } from '../hooks/useFocus';
+import { useBlockDrag } from '../hooks/useBlockDrag';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
@@ -28,17 +29,20 @@ export default defineComponent({
             width:data.value.container.width+'px',
             height:data.value.container.height+'px'
         }))  
-        /**
-         * h5 拖拽
-         */
+    /**
+     * h5 拖拽
+    */    
         const containRef = ref(null);   // 获取整个画布元素
         // 1 左侧物料区 菜单拖拽功能
         let {dragStart,dragend} = useMneuDragger(containRef,data);  
-        // 2 画布组件 鼠标按下
+        // 2 画布组件 鼠标按下 添加选中样式 监听鼠标移动 抬起事件
         let { blockMousedown ,clearBlockFocus,focusData } = useFocus(data,(e) => {
-            console.log('focusData',focusData.value.focus);
+            mousedown(e)
         })
-        // 3 画布元素 实现拖拽
+        // 3 实现 画布被选中元素 拖拽 
+        let {mousedown} = useBlockDrag(focusData);
+
+
 
         return ()=> <div class="editor">
             <div class='editor_left'>
