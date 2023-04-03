@@ -18,6 +18,10 @@ export function useBlockDrag(focusData){
             startX:e.clientX,
             startY:e.clientY,
             startPos:focusData.value.focus.map(({top,left}) => ({top,left}))
+            /**
+             * ({top,left}) => ({top,left})
+             * 解构出每一项的top left ,返回一个对象 {top:top,left:left}
+             */
         } as startInterface
 
         document.addEventListener('mousemove',mousemove);
