@@ -1,14 +1,18 @@
 
- import { defineComponent , computed ,inject,ref, onMounted} from "vue";
+ import { defineComponent , computed ,inject,ref, onMounted, ComputedRef} from "vue";
  import { componentInerface } from '../utils/editConfig';
-
+ type conStyleType = {
+    top:string,
+    left:string,
+    zIndex:number
+ }
 
 export default defineComponent({
    props:{
     block:{type:Object}
    },
     setup(props) {
-        const containerStyle = computed(() => ({   // 每一个UI组件的样式
+        const containerStyle:ComputedRef<conStyleType> = computed(() => ({   // 每一个UI组件的样式
             top:props.block!.top+'px',
             left:props.block!.left+'px',
             zIndex:props.block!.zIndex
@@ -22,6 +26,9 @@ export default defineComponent({
                 props.block!.top = props.block!.top -  offsetHeight/2;
                 props.block!.alignCenter = false;
             }
+            // 获取到元素 宽高 并赋值
+            props.block!.width = offsetWidth;
+            props.block!.height = offsetHeight;
         })
      
         const config:componentInerface = inject('config') as componentInerface;

@@ -30,17 +30,17 @@ export default defineComponent({
             height:data.value.container.height+'px'
         }))  
     /**
-     * h5 拖拽
+     * 拖拽
     */    
         const containRef = ref(null);   // 获取整个画布元素
         // 1 左侧物料区 菜单拖拽功能
         let {dragStart,dragend} = useMneuDragger(containRef,data);  
         // 2 画布组件 鼠标按下 添加选中样式 监听鼠标移动 抬起事件
-        let { blockMousedown ,clearBlockFocus,focusData } = useFocus(data,(e) => {
-            mousedown(e)
+        let { blockMousedown ,clearBlockFocus,focusData , lastSelectBlock} = useFocus(data,(e) => {
+            mousedown(e);
         })
         // 3 实现 画布被选中元素 拖拽 
-        let {mousedown} = useBlockDrag(focusData);
+        let {mousedown,markLine} = useBlockDrag(focusData,lastSelectBlock,data);
 
 
 
@@ -63,23 +63,27 @@ export default defineComponent({
             <div class='editor_top'>菜单栏</div>
             <div class='editor_right'>属性控制</div>
             <div class='editor_container'>
+                {/* 负责产生滚动条 */}
                 <div class="editor_container_canvas">
-                    {/* 负责产生滚动条 */}
                     <div class="editor_container_canvas_content" 
                         style={containerStyle.value}
                         ref={containRef} 
                         onMousedown={clearBlockFocus}   // 清除所有被选中的 组件样式
                     >
                         {
-                            (data.value.blocks.map(block => (
+                            (data.value.blocks.map((block,index) => (
                                 <EditorBlock 
                                     class={block.focus ? 'editor_block_focus' : ''}
                                     block={block}
-                                    onMousedown={(e) =>blockMousedown(e,block)}  
+                                    onMousedown={(e) =>blockMousedown(e,block,index)}  
                                 />
                             )))
                         }
+                        {markLine.x !== null && <div class='line-x' style={{left:markLine.x+'px'}}></div>}
+                        {markLine.y !== null && <div class='line-y' style={{top:markLine.y+'px'}}></div>}
+
                     </div>
+                       
                 </div>
             </div>
         </div>

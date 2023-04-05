@@ -5,7 +5,9 @@ export interface blockInterface {
     zIndex:number,
     key:string,
     focus?:boolean,
-    alignCenter?:boolean
+    width?:number,
+    height?:number,
+    alignCenter?:boolean,
 }
 
 export interface dataInterface {
