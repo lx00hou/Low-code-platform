@@ -13,14 +13,16 @@ export function useFocus(data:Ref<dataInterface>,callback:Function){
         e.preventDefault();
         e.stopPropagation(); 
         if(e.shiftKey){  // 按下 shift
-            block.focus = !block.focus
+            if(focusData.value.focus.length <= 1){
+                block.focus = true
+            }else block.focus = !block.focus
+            
         }else {
             if(!block.focus){
                 // 清空其他组件的 focus 属性
                 clearBlockFocus();
                 block.focus = true;
             }
-            else block.focus = false;
         }
         callback(e)  // 选中后 触发回调
     }

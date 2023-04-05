@@ -29,6 +29,9 @@ function createEditorConfid():componentInerface{
     }
 }
 export const registerConfig = createEditorConfid();
+/**
+ * 注册物料 组件
+ */
 registerConfig.register({
     label:'文本',
     preview:() => '预览文本',

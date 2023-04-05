@@ -28,6 +28,7 @@ export function useBlockDrag(focusData){
         document.addEventListener('mouseup',mouseup);
     }
     const mousemove = (e) => {
+        
         let {clientX:moveX,clientY:moveY} = e;   
         let durX = moveX - dragState.startX;   // 获取移动时 相对浏览器的 水平座标
         let durY = moveY - dragState.startY;   // 获取移动时 相对浏览器的 垂直坐标
