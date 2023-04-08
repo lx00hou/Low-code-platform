@@ -3,6 +3,7 @@ import { componentInerface } from '../utils/editConfig';
 import { useMneuDragger }  from '../hooks/useMenuDrag';
 import { useFocus } from '../hooks/useFocus';
 import { useBlockDrag } from '../hooks/useBlockDrag';
+import { useCommand } from '../hooks/useCommand';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
@@ -42,7 +43,13 @@ export default defineComponent({
         // 3 实现 画布被选中元素 拖拽 
         let {mousedown,markLine} = useBlockDrag(focusData,lastSelectBlock,data);
 
-
+        // 头部菜单 撤销 重做
+        const {commands }  = useCommand();
+        
+        const buttons = [
+            {label:'撤销',handler:() => commands.undo()},
+            {label:'重做',handler:() => commands.redo()}
+        ]
 
         return ()=> <div class="editor">
             <div class='editor_left'>
@@ -60,7 +67,13 @@ export default defineComponent({
                  ))
                 }
             </div>
-            <div class='editor_top'>菜单栏</div>
+            <div class='editor_top'>
+                {
+                    buttons.map((btn,index) =>{
+                        return <div class='editor_top_item' onClick={btn.handler}>{btn.label}</div>
+                    })
+                }
+            </div>
             <div class='editor_right'>属性控制</div>
             <div class='editor_container'>
                 {/* 负责产生滚动条 */}

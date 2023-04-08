@@ -12,7 +12,7 @@ export function useFocus(data:Ref<dataInterface>,callback:Function){
      * data:JSON
      * callback:Function --> 画布物料组见被选中 回调函数
      */
-
+    
     let lastSelectIndex = ref(-1);   // 最后一个被选中的元素索引
     let lastSelectBlock:ComputedRef<blockInterface> = computed(() => data.value.blocks[lastSelectIndex.value]);
 

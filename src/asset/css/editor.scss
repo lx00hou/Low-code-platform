@@ -4,7 +4,7 @@
     &_left,&_right{
         position: absolute;
         width: 270px;
-        background: yellow;
+        border: 1px solid #ccc;
         top: 0;
         bottom: 0;
     }
@@ -51,7 +51,21 @@
         right: 280px;
         left: 280px;
         height:80px;
-        background: blue;
+        background: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        &_item {
+            color: white;
+            font-size: 24px;
+            padding: 4px 6px;
+            box-sizing: border-box;
+            cursor: pointer;
+            &:hover {
+                color: aquamarine;
+            }
+            
+        }
     }
     &_container {
         padding: 80px 270px 0;
