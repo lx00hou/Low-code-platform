@@ -44,7 +44,7 @@ export default defineComponent({
         let {mousedown,markLine} = useBlockDrag(focusData,lastSelectBlock,data);
 
         // 头部菜单 撤销 重做
-        const {commands }  = useCommand();
+        const {commands }  = useCommand(data);
         
         const buttons = [
             {label:'撤销',handler:() => commands.undo()},
