@@ -1,9 +1,8 @@
-import { Ref, onMounted , getCurrentInstance} from 'vue';
+import { Ref,getCurrentInstance,onUnmounted} from 'vue';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 // import { events } from "../utils/event";
 import { dataInterface } from '../utils/dataJsonCheck';
 import { blockInterface } from '../utils/dataJsonCheck';
-import { onUnmounted } from 'vue';
 
 
 interface commandInterface {
