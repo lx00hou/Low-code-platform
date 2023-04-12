@@ -1,4 +1,4 @@
-import { defineComponent , computed, inject , ref} from "vue";
+import { defineComponent , computed, inject , ref, nextTick} from "vue";
 import { componentInerface } from '../utils/editConfig';
 import { useMneuDragger }  from '../hooks/useMenuDrag';
 import { useFocus } from '../hooks/useFocus';
@@ -40,8 +40,9 @@ export default defineComponent({
         let { blockMousedown ,clearBlockFocus,focusData , lastSelectBlock} = useFocus(data,(e) => {
             mousedown(e);
         })
-        // 3 实现 画布被选中元素 拖拽 
         let {mousedown,markLine} = useBlockDrag(focusData,lastSelectBlock,data);
+
+        // 3 实现 画布被选中元素 拖拽 
 
         // 头部菜单 撤销 重做
         const {commands }  = useCommand(data);

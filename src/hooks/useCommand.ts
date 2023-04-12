@@ -1,8 +1,9 @@
-import { Ref, onMounted } from 'vue';
+import { Ref, onMounted , getCurrentInstance} from 'vue';
 import deepcopy from 'deepcopy';    // 深拷贝插件
-import { events } from "@/utils/event";
+// import { events } from "../utils/event";
 import { dataInterface } from '../utils/dataJsonCheck';
 import { blockInterface } from '../utils/dataJsonCheck';
+import { onUnmounted } from 'vue';
 
 
 interface commandInterface {
@@ -15,15 +16,18 @@ interface commandInterface {
 } 
 interface stateInterface {
     current:number,
-    queue:[],
+    queue:{
+        doIt:Function,
+        undo?:Function
+    }[],
     commands:{
         [propName:string]:Function
     },
     commandArray:commandInterface[],
     destoryArray:any
 }
-
 export function useCommand(data:Ref<dataInterface>){
+    const curInstance = getCurrentInstance();
     const state:stateInterface = {
         current:-1,   // 前进后退的索引值
         queue:[],   // 获取所有操作命令
@@ -35,20 +39,30 @@ export function useCommand(data:Ref<dataInterface>){
     const registy = (command:commandInterface) => {
         state.commandArray.push(command);
         state.commands[command.name] = () => {    // 命令名字 对应的 执行函数
-            const {doIt} = command.execute();
+            const {doIt,undo} = command.execute();
             doIt();
+            if(!command.pushQueue) return  // 不需要放到队列 直接跳过
+            let {queue,current} = state;
+            if(queue.length > 0){
+                queue = queue.slice(0,current + 1);
+                state.queue = queue;
+            }
+            queue.push({doIt,undo})   // 保存指令前进后退
+            state.current = current + 1;
         }
     }
 
     // 注册命令
    
-    registy({   // 重做
+    registy({   // 重做(还原)
         name:"redo",    
         keyboard:'ctrl+y',
         execute(){
             return {
                 doIt(){
-                    console.log('重做');
+                    let item = state.queue[state.current+1]; 
+                    item && item.doIt && item.doIt();
+                    state.current++; 
                 }
             }
         }
@@ -59,7 +73,10 @@ export function useCommand(data:Ref<dataInterface>){
         execute(){
             return {
                 doIt(){
-                    console.log('撤销');
+                    if(state.current == -1) return    // 没有可以撤销的了
+                    let item = state.queue[state.current];
+                    item && item.undo && item.undo();
+                    state.current--;
                 }
             }
         }
@@ -73,39 +90,38 @@ export function useCommand(data:Ref<dataInterface>){
             const start = () => this.before = deepcopy(data.value.blocks)
             // 拖拽之后 触发对应指令
             const end = () => state.commands.drag();
-            events.on('start',start)   // 监控拖拽前
-            events.on('end',end)   // 监控拖拽后
-
+            
+            curInstance?.proxy?.$Bus.on('start',start);
+            curInstance?.proxy?.$Bus.on('end',end);
             return () => {  // 解绑(销毁)
-                events.off('start',start)
-                events.off('end',end)
+                curInstance?.proxy?.$Bus.off('start',start);
+                curInstance?.proxy?.$Bus.off('end',end);
             }
         },
         execute(){
-            let befor = this.before;   // 之前的状态
+            let before = this.before;   // 之前的状态
             let after = data.value.blocks;  // 之后的状态
             return {
                 doIt(){
                     // 默认拖拽松手  存储当前的 
-                    data.value = {...data.value,...after}                    
+                    data.value = {...data.value,blocks:after}                    
                 },
                 undo(){
                     // 前一步
-                    data.value = {...data.value,...befor}                    
+                    data.value = {...data.value,blocks:before as blockInterface[] }                    
                 }
             }
         }
     });
 
 
-    (() => {
-        state.commandArray.forEach((command:commandInterface) => {
-            command.init && state.destoryArray.push(command.init()) 
-        })
-    })()
+    ;(() => {
+        state.commandArray.forEach((command:commandInterface) => command.init && state.destoryArray.push(command.init()) )
+    })();
 
-    onMounted(() => {   // 清理绑定事件
+    onUnmounted(() => {   // 销毁事件
         state.destoryArray.forEach((fn:Function) => fn&&fn())
     })
+
     return state
 }

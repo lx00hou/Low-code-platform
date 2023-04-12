@@ -1,8 +1,9 @@
-import { Ref } from 'vue';
+import { Ref,getCurrentInstance } from 'vue';
 import { dataInterface } from '../utils/dataJsonCheck';
-import { events } from '../utils/event';
+// import { events } from '../utils/event';
 // 左侧组件 拖拽到 画布
 export function useMneuDragger(containRef:Ref<HTMLDivElement>,data:Ref<dataInterface>){
+    const curInstance = getCurrentInstance();
     let curComponent:any = null;   // 当前拖拽的物料组件
     const dragStart = (e,component) => {
         // 拖拽开始 绑定事件
@@ -11,7 +12,7 @@ export function useMneuDragger(containRef:Ref<HTMLDivElement>,data:Ref<dataInter
         containRef.value!.addEventListener('dragleave',dragleave);  // 离开元素
         containRef.value!.addEventListener('drop',drop);   // 松手
         curComponent = component;
-        events.emit('start')  // 发布start
+        curInstance?.proxy?.$Bus.emit('start');
     }
     const dragend = (e) => {
         // 拖拽结束 移除事件
@@ -19,7 +20,7 @@ export function useMneuDragger(containRef:Ref<HTMLDivElement>,data:Ref<dataInter
         containRef.value!.removeEventListener('dragover',dragover);  // 目标元素经过
         containRef.value!.removeEventListener('dragleave',dragleave);  // 离开元素
         containRef.value!.removeEventListener('drop',drop);   // 松手
-        events.emit('end')  // 发布end
+        curInstance?.proxy?.$Bus.emit('end');
     }
     const dragenter = (e) => {
         e.dataTransfer.dropEffect = 'move';
