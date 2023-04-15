@@ -37,8 +37,8 @@ export function useCommand(data:Ref<dataInterface>){
 
     const registy = (command:commandInterface) => {
         state.commandArray.push(command);
-        state.commands[command.name] = () => {    // 命令名字 对应的 执行函数
-            const {doIt,undo} = command.execute();
+        state.commands[command.name] = (...args) => {    // 命令名字 对应的 执行函数
+            const {doIt,undo} = command.execute(...args);
             doIt();
             if(!command.pushQueue) return  // 不需要放到队列 直接跳过
             let {queue,current} = state;
@@ -112,7 +112,28 @@ export function useCommand(data:Ref<dataInterface>){
             }
         }
     });
-    const keyBoardEvent = (() => {
+    registy({
+        name:'updateContainer',   // 更新整个容器
+        pushQueue:true,
+        execute(newVal){
+            let state = {
+                before:data.value,   // 当前值
+                after:newVal    // 新值
+            }
+            return {
+                doIt(){
+                    data.value = state.after                    
+                },
+                undo(){
+                    data.value = state.before                    
+                }
+            }
+
+        }
+    });
+
+
+    const keyBoardEvent = (() => {   // 键盘事件
         const keyCodes = {
             90:'z',
             80:'y'

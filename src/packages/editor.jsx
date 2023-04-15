@@ -7,6 +7,7 @@ import { useCommand } from '../hooks/useCommand';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
+import { $dialog } from "../components/Dialog";
 
 
 export default defineComponent({
@@ -49,7 +50,23 @@ export default defineComponent({
         
         const buttons = [
             {label:'撤销',handler:() => commands.undo()},
-            {label:'重做',handler:() => commands.redo()}
+            {label:'重做',handler:() => commands.redo()},
+            {label:'导出',handler:() => {
+                $dialog({
+                    title:"导出json",
+                    content:JSON.stringify(data.value),
+                })
+            }},
+            {label:'导入',handler:() => {
+                $dialog({
+                    title:"导入json",
+                    content:'内容',
+                    footer:true,
+                    onConfirm(text){   // 回调 拿到输入的文本 
+                        commands.updateContainer(JSON.parse(text));
+                    }
+                })
+            }}
         ]
 
         return ()=> <div class="editor">

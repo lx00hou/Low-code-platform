@@ -34,7 +34,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/packages/editor.jsx", "src/packages/editor.jsx", "src/hooks/useBlockDrag.js", "src/hooks/useBlockDrag.js", "src/utils/event.ts"  ],
+, "src/packages/editor.jsx", "src/packages/editor.jsx", "src/hooks/useBlockDrag.js", "src/hooks/useBlockDrag.js", "src/utils/event.ts", "src/components/Dialog.jsx", "src/components/Dialog.jsx"  ],
   "exclude": [
     "node_modules"
   ]
