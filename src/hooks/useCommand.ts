@@ -112,9 +112,37 @@ export function useCommand(data:Ref<dataInterface>){
             }
         }
     });
-
-
+    const keyBoardEvent = (() => {
+        const keyCodes = {
+            90:'z',
+            80:'y'
+        }
+        const onKeyDown = (e) => {
+            const {ctrlKey,keyCode} = e; 
+            let keyString:Array<string> | string = [];
+            if(ctrlKey) keyString.push('ctrl');
+            keyString.push(keyCodes[keyCode]);
+            keyString = keyString.join('+'); 
+            state.commandArray.forEach(({keyboard,name}) => {
+                if(!keyboard) return   // 没有键盘事件
+                if(keyboard === keyString){
+                    state.commands[name]();
+                    e.preventDefault()
+                }
+            })
+        }
+        const init = () => {  // 初始化事件
+            window.addEventListener('keydown',onKeyDown);
+            return () => {    //  销毁事件
+                window.removeEventListener('keydown',onKeyDown);
+            }
+        }
+        return init
+    })()
+    // 进入有页面就会执行
     ;(() => {
+        // 监听 键盘事件
+        state.destoryArray.push(keyBoardEvent());
         state.commandArray.forEach((command:commandInterface) => command.init && state.destoryArray.push(command.init()) )
     })();
 

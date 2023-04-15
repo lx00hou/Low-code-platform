@@ -1,9 +1,10 @@
 // 画布内 组件的拖拽
-import { ComputedRef, reactive } from 'vue';
+import { ComputedRef, reactive,getCurrentInstance } from 'vue';
 import { blockInterface,dataInterface } from '../utils/dataJsonCheck';
 import { focusDataInterface } from './useFocus';
 
 export function useBlockDrag(focusData,lastSelectBlock,data){
+    let curInstance = getCurrentInstance();
     /**
      * focusData:focusDataInterface[] --> focus 被选中的物料组件信息集合
      * lastSelectBlock:blockInterface --> 最后一个被选中的物料组件信息
@@ -11,6 +12,7 @@ export function useBlockDrag(focusData,lastSelectBlock,data){
     let dragState = {
         startX:0,
         startY:0,
+        dragging:false   // 当前是否在拖拽 默认 false
     }
     let markLine = reactive({
         x:null,
@@ -25,6 +27,7 @@ export function useBlockDrag(focusData,lastSelectBlock,data){
         dragState = {
             startX:e.clientX,
             startY:e.clientY,
+            dragging:false,
             startLeft:lastSelectBlock.value.left,   // 被拖拽元素 left 
             startTop:lastSelectBlock.value.top,  // 被拖拽元素 top
             startPos:focusData.value.focus.map(({top,left}) => ({top,left})),
@@ -72,6 +75,10 @@ export function useBlockDrag(focusData,lastSelectBlock,data){
     const mousemove = (e) => {
         
         let {clientX:moveX,clientY:moveY} = e;   
+        if(!dragState.dragging){
+            dragState.dragging = true;   // 正在拖拽
+            curInstance?.proxy?.$Bus.emit('start');   // 触发事件 拖拽前 记住位置
+        }
         // 计算当前元素 left top 去lines中查找
         let left = moveX - dragState.startX + dragState.startLeft  // 最新位置 - 之前位置 + left
         let top = moveY - dragState.startY + dragState.startTop   // 最新位置 - 之前位置 + top
@@ -112,6 +119,10 @@ export function useBlockDrag(focusData,lastSelectBlock,data){
         document.removeEventListener('mouseup',mouseup);
         markLine.x = null;
         markLine.y = null;
+        if(dragState.dragging) {  // 如果只是点击 不会触发 只有移动元素 dragging 才会变为true 
+            dragState.dragging = false;
+            curInstance?.proxy?.$Bus.emit('end');
+        }
     }
 
 
