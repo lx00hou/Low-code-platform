@@ -1,8 +1,9 @@
-import { Ref,getCurrentInstance,onUnmounted} from 'vue';
+import { Ref,getCurrentInstance,onUnmounted,ComputedRef } from 'vue';
 import deepcopy from 'deepcopy';    // 深拷贝插件
 // import { events } from "../utils/event";
 import { dataInterface } from '../utils/dataJsonCheck';
 import { blockInterface } from '../utils/dataJsonCheck';
+import { focusDataInterface } from './useFocus';
 
 
 interface commandInterface {
@@ -25,7 +26,7 @@ interface stateInterface {
     commandArray:commandInterface[],
     destoryArray:any
 }
-export function useCommand(data:Ref<dataInterface>){
+export function useCommand(data:Ref<dataInterface>,focusData:ComputedRef<focusDataInterface>){
     const curInstance = getCurrentInstance();
     const state:stateInterface = {
         current:-1,   // 前进后退的索引值
@@ -131,6 +132,81 @@ export function useCommand(data:Ref<dataInterface>){
 
         }
     });
+    registy({   // 置顶
+        name:"placeTop",
+        pushQueue:true,
+        execute(){
+            let before = deepcopy(data.value.blocks);   // 之前的数据保存
+            let after = (() => {   // 置顶,所有blocks(组件) 找到zIndex 最大值
+                let { focus,unfocus } = focusData.value;
+                let maxZindex = unfocus.reduce((prev,block) => {
+                    return Math.max(prev,block.zIndex); 
+                },-Infinity);
+                focus.forEach(block => block.zIndex = maxZindex+1);   // 将当前选中的组件添加 zIndex层级
+                return data.value.blocks 
+            })()
+            return {
+                doIt(){
+                    data.value = {...data.value,blocks:after} 
+                },
+                undo(){
+                    // 如果 当前 blocks 前后一致,则不会触发页面更新(深拷贝解决该问题)
+                    data.value = {...data.value,blocks:before} 
+                }
+            }
+        }
+    });
+    registy({   // 置底
+        name:"placeBottom",
+        pushQueue:true,
+        execute(){
+            let before = deepcopy(data.value.blocks);   // 之前的数据保存
+            let after = (() => {   // 置顶,所有blocks(组件) 找到zIndex 最小值
+                let { focus,unfocus } = focusData.value;
+                let minZindex = unfocus.reduce((prev,block) => {
+                    return Math.min(prev,block.zIndex); 
+                },Infinity) - 1;
+                if(minZindex < 0) {
+                    const dur = Math.abs(minZindex);
+                    minZindex = 0;
+                    unfocus.forEach(block => block.zIndex += dur)
+                }
+                focus.forEach(block => block.zIndex = minZindex);   // 将当前选中的组件添加 zIndex层级
+                // focus.forEach(block => block.zIndex = minZindex+1);   // 将当前选中的组件添加 zIndex层级
+                return data.value.blocks 
+            })()
+            return {
+                doIt(){
+                    data.value = {...data.value,blocks:after} 
+                },
+                undo(){
+                    // 如果 当前 blocks 前后一致,则不会触发页面更新(深拷贝解决该问题)
+                    data.value = {...data.value,blocks:before} 
+                }
+            }
+        }
+    });
+
+    registy({   // 删除
+        name:'delete',
+        pushQueue:true,
+        execute(){
+            let state = {
+                before:deepcopy(data.value.blocks),   // 当前值
+                after:focusData.value.unfocus    // 选中都删除掉,留下没选中的
+            }
+            return {
+                doIt(){
+                    data.value = {...data.value,blocks:state.after}                    
+                },
+                undo(){
+                    data.value = {...data.value,blocks:state.before}                    
+                }
+            }
+
+        }
+    });
+
 
 
     const keyBoardEvent = (() => {   // 键盘事件

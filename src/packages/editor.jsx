@@ -16,6 +16,9 @@ export default defineComponent({
     },
     // emit:['update:modelValue'],
     setup(props,ctx){
+        // 预览时 内容不能再操作
+        let previewRef = ref(false);   // 是否开启预览
+
         const data = computed({
             get(){
                 // 获取 计算属性的值 需要 .value 
@@ -38,7 +41,7 @@ export default defineComponent({
         // 1 左侧物料区 菜单拖拽功能
         let {dragStart,dragend} = useMneuDragger(containRef,data);  
         // 2 画布组件 鼠标按下 添加选中样式 监听鼠标移动 抬起事件
-        let { blockMousedown ,clearBlockFocus,focusData , lastSelectBlock} = useFocus(data,(e) => {
+        let { blockMousedown ,clearBlockFocus,focusData , lastSelectBlock} = useFocus(data,previewRef,(e) => {
             mousedown(e);
         })
         let {mousedown,markLine} = useBlockDrag(focusData,lastSelectBlock,data);
@@ -46,7 +49,7 @@ export default defineComponent({
         // 3 实现 画布被选中元素 拖拽 
 
         // 头部菜单 撤销 重做
-        const {commands }  = useCommand(data);
+        const {commands }  = useCommand(data,focusData);
         
         const buttons = [
             {label:'撤销',handler:() => commands.undo()},
@@ -66,7 +69,16 @@ export default defineComponent({
                         commands.updateContainer(JSON.parse(text));
                     }
                 })
-            }}
+            }},
+            {label:'置顶',handler:() => commands.placeTop()},
+            {label:'置底',handler:() => commands.placeBottom()},
+            {label:'删除',handler:() => commands.delete()},
+
+            {label:()=>previewRef.value ? '编辑':'预览',handler:() => {
+                clearBlockFocus();
+                previewRef.value = !previewRef.value;
+            }},
+
         ]
 
         return ()=> <div class="editor">
@@ -88,7 +100,8 @@ export default defineComponent({
             <div class='editor_top'>
                 {
                     buttons.map((btn,index) =>{
-                        return <div class='editor_top_item' onClick={btn.handler}>{btn.label}</div>
+                        const label = typeof btn.label === 'function' ? btn.label() : btn.label;  
+                        return <div class='editor_top_item' onClick={btn.handler}>{label}</div>
                     })
                 }
             </div>
@@ -105,6 +118,7 @@ export default defineComponent({
                             (data.value.blocks.map((block,index) => (
                                 <EditorBlock 
                                     class={block.focus ? 'editor_block_focus' : ''}
+                                    class={previewRef.value ? 'editor_block_preview' : ''}
                                     block={block}
                                     onMousedown={(e) =>blockMousedown(e,block,index)}  
                                 />

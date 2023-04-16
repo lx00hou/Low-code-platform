@@ -7,7 +7,7 @@ export interface focusDataInterface {
 }
 
 // 判断画布中 哪些元素被选中 && 添加 选中样式 && shift 多选
-export function useFocus(data:Ref<dataInterface>,callback:Function){ 
+export function useFocus(data:Ref<dataInterface>,previewRef:Ref<Boolean>,callback:Function){ 
     /**
      * data:JSON
      * callback:Function --> 画布物料组见被选中 回调函数
@@ -25,7 +25,7 @@ export function useFocus(data:Ref<dataInterface>,callback:Function){
     }) 
 
     let blockMousedown = (e,block:blockInterface,index:number) :void => {   // 鼠标按下
-        
+        if(previewRef.value) return  // 开启预览模式 无法拖动
         e.preventDefault();
         e.stopPropagation(); 
         if(e.shiftKey){  // 按下 shift
@@ -41,10 +41,11 @@ export function useFocus(data:Ref<dataInterface>,callback:Function){
             }
         }
         lastSelectIndex.value = index;
-        callback(e)  // 选中后 触发回调
+        callback(e)  // 选中后 触发拖拽回调
     }
 
     const clearBlockFocus = ():void => {
+        if(previewRef.value) return  // 开启预览模式
         lastSelectIndex.value = -1;
         data.value.blocks.forEach(block => block.focus = false);
     }

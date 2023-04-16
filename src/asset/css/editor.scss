@@ -101,6 +101,11 @@
         border: 2px dashed red;
     }
 }
+.editor_block_preview {
+    &::after {
+        display: none;
+    }
+}
 .line-x{  // left 辅助线
     position: absolute;
     top: 0;
