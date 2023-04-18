@@ -8,6 +8,7 @@ import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
 import { $dialog } from "../components/Dialog";
+import { ElButton } from "element-plus";
 
 
 export default defineComponent({
@@ -18,6 +19,7 @@ export default defineComponent({
     setup(props,ctx){
         // 预览时 内容不能再操作
         let previewRef = ref(false);   // 是否开启预览
+        let editorRef = ref(true);    // 是否在编辑状态
 
         const data = computed({
             get(){
@@ -78,10 +80,38 @@ export default defineComponent({
                 clearBlockFocus();
                 previewRef.value = !previewRef.value;
             }},
+            {label:'关闭',handler:() => {
+                editorRef.value = false
+            }}
 
         ]
 
-        return ()=> <div class="editor">
+        const onContextmenuBlock = (e) => {
+            // 鼠标右击事件 阻止默认行为
+            e.preventDefault();
+            console.log('e',e);
+        }
+
+
+        return ()=> !editorRef.value ? <>
+              <div class="editor_container_canvas_content" 
+                    style={containerStyle.value}
+                    style='background:yellowgreen'
+                >
+                    {
+                        (data.value.blocks.map((block,index) => (
+                            <EditorBlock 
+                                class={ 'editor_block_preview' }
+                                block={block}
+                            />
+                        )))
+                    }
+                </div>
+                <div>
+                    <ElButton type='primary' onClick={() => editorRef.value = true}>继续编辑</ElButton>
+                </div>
+        
+        </>:<div class="editor">
             <div class='editor_left'>
                 {/* 根据 映射列表 渲染对应内容 */}
                 {
@@ -121,6 +151,7 @@ export default defineComponent({
                                     class={previewRef.value ? 'editor_block_preview' : ''}
                                     block={block}
                                     onMousedown={(e) =>blockMousedown(e,block,index)}  
+                                    onContextmenu = {(e) => onContextmenuBlock(e,block)}
                                 />
                             )))
                         }
