@@ -8,7 +8,9 @@ import deepcopy from 'deepcopy';    // 深拷贝插件
 import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
 import { $dialog } from "../components/Dialog";
+import { $dropdown } from "../components/Dropdown";
 import { ElButton } from "element-plus";
+import { DropdownItem } from '../components/Dropdown'
 
 
 export default defineComponent({
@@ -86,10 +88,25 @@ export default defineComponent({
 
         ]
 
-        const onContextmenuBlock = (e) => {
+        const onContextmenuBlock = (e,block) => {
             // 鼠标右击事件 阻止默认行为
             e.preventDefault();
-            console.log('e',e);
+            $dropdown({
+                el:e.target,   // 以某个元素为准
+                content:() => {
+                    return <>
+                        <DropdownItem label='删除' onClick={() => commands.delete()} />
+                        <DropdownItem label='置顶' onClick={() => commands.placeTop()} />
+                        <DropdownItem label='置底' onClick={() => commands.placeBottom()} />
+                        <DropdownItem label='查看' onClick={() => {
+                              $dialog({
+                                    title:"查看节点数据",
+                                    content:JSON.stringify(block),
+                                })
+                        }} />
+                    </>
+                }
+            })
         }
 
 
