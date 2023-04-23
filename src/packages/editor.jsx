@@ -5,12 +5,14 @@ import { useFocus } from '../hooks/useFocus';
 import { useBlockDrag } from '../hooks/useBlockDrag';
 import { useCommand } from '../hooks/useCommand';
 import deepcopy from 'deepcopy';    // 深拷贝插件
-import EditorBlock from "./editor-block";
 import '../asset/css/editor.scss';
 import { $dialog } from "../components/Dialog";
 import { $dropdown } from "../components/Dropdown";
 import { ElButton } from "element-plus";
-import { DropdownItem } from '../components/Dropdown'
+import { DropdownItem } from '../components/Dropdown';
+import EditorOperator from './editor-operator'; 
+import EditorBlock from "./editor-block";
+
 
 
 export default defineComponent({
@@ -152,7 +154,12 @@ export default defineComponent({
                     })
                 }
             </div>
-            <div class='editor_right'>属性控制</div>
+            <div class='editor_right'>
+                {/* 
+                    右侧属性控制
+                */}
+                <EditorOperator block={lastSelectBlock.value} data={data.value} />
+            </div>
             <div class='editor_container'>
                 {/* 负责产生滚动条 */}
                 <div class="editor_container_canvas">

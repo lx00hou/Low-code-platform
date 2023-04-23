@@ -1,4 +1,6 @@
-
+/**
+ * 组件渲染
+ */
  import { defineComponent , computed ,inject,ref, onMounted, ComputedRef} from "vue";
  import { componentInerface } from '../utils/editConfig';
  type conStyleType = {
