@@ -41,7 +41,8 @@ export function useMneuDragger(containRef:Ref<HTMLDivElement>,data:Ref<dataInter
                 left:e.offsetX,
                 zIndex:1,
                 key:curComponent.key,
-                alignCenter:true   // 拖拽的元素 画布居中标识
+                alignCenter:true,   // 拖拽的元素 画布居中标识
+                props:{}   // 组件独有的属性 text,color 等
             }
         ]}
         curComponent = null;

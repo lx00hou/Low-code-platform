@@ -37,7 +37,9 @@ export default defineComponent({
         
         return () => {
             const component = config.componentMap[props.block!.key];
-            let RenderComponent =  component.render();
+            let RenderComponent =  component.render({
+                props:props.block!.props
+            });
             return <div class='eidt-block'  
                         style={containerStyle.value}
                         ref={blockRef}

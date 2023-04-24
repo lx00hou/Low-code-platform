@@ -8,6 +8,7 @@ export interface blockInterface {
     width?:number,
     height?:number,
     alignCenter?:boolean,
+    props:{}
 }
 
 export interface dataInterface {
