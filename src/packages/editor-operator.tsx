@@ -4,7 +4,7 @@
  */
 import { defineComponent , computed ,inject,ref, onMounted, ComputedRef} from "vue";
 import { componentInerface } from '../utils/editConfig';
-import { ElButton, ElForm, ElFormItem, ElInputNumber } from "element-plus";
+import { ElButton, ElColorPicker, ElForm, ElFormItem, ElInput, ElInputNumber, ElSelect,ElOption } from "element-plus";
 import { dataInterface } from "@/utils/dataJsonCheck"; 
 
 export default defineComponent({
@@ -29,8 +29,20 @@ export default defineComponent({
         }else {
             // 当前试图至少有一个被选中的元素
             let component = config.componentMap[props.block.key];
-            if(component && component.props){  // {text:{},size:{},color:{}}
-                console.log('component',component);
+            if(component && component.props){  // {text:{},size:{},color:{}
+                content.push( Object.entries(component.props).map(([propName,propConfig]:any) =>{
+                    return <ElFormItem label={propConfig.label}>
+                        {{
+                            input:() => <ElInput></ElInput>,
+                            color:() => <ElColorPicker></ElColorPicker>,
+                            select:() => <ElSelect>
+                                {propConfig.options.map(opt => {
+                                    return <ElOption label={opt.label} value={opt.value}></ElOption>
+                                })}
+                            </ElSelect>
+                        }[propConfig.type]()}
+                    </ElFormItem>
+                } ))
             }
 
         }
